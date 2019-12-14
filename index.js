@@ -9,12 +9,14 @@
 		//indexedDB.open returns a request for a database becasue IndexedDB is asynchronous
 		let openRequest = indexedDB.open('exerciseDB', 1);
 
+		//only in 'onupgradeneeded' we can create object stores
 		openRequest.onupgradeneeded = function(event) {
 			//set db variable to hold the database
 			db = event.target.result;
 			let friends = db.createObjectStore('friends', {autoincrement: true});
 		}
 
+		//'onsuccess' fires after 'onupgradeneeded' completes and it also fires if we refresh the page and open the database again
 		openRequest.onsuccess = function(event) {
 			db = event.target.result;
 
