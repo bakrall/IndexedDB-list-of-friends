@@ -20,32 +20,37 @@
 		openRequest.onsuccess = function(event) {
 			db = event.target.result;
 
-			addFriends();
+			let transaction = db.transaction(['friends'], 'readwrite');
+			let store = transaction.objectStore('friends');
+			let getData = store.getAll();
+
+			addFriend(db, 'Bob', 'bob@bob.com');
+			addFriend(db, 'Jack', 'jack@jack.com');
+			addFriend(db, 'Pete', 'pete@pete.com');
+
+			getData.onsuccess = function(event) {
+				let friendsArray = event.target.result;
+				let friendsList = $('.friends');
+
+				displayFriendsList(friendsArray, friendsList);
+			}
 		}
 
 		openRequest.onerror = function(event) {
 			console.log('error', event.target.errorCode);
 		}
 
-		function addFriends() {
+		function addFriend(db, name, email) {
 			//start a database transaction
 			let	transaction = db.transaction(['friends'], 'readwrite');
 			//get the friends object store
 			let store = transaction.objectStore('friends');
-			let friends = [{email: 'bob@bob.com', name: 'Bob'}, {email: 'jack@jack.com', name: 'Jack'},
-				{email: 'pete@pete.com', name: 'Pete'}, {email: 'jane@jane.com', name: 'Jane'}, 
-				{email: 'polly@polly.com', name: 'Polly'}];
-			let friendsList = $('.friends');
-
-			for (var x in friends) {
-				store.add(friends[x], x);
-			}
-
-			displayFriendsList(friends, friendsList);
+			let friend = {name: name, email: email};
+			store.add(friend, name); //name is the key
 		}
 
-		function displayFriendsList(friends = [], list) {
-			friends.forEach((friend) => {
+		function displayFriendsList(friendsArray = [], list) {
+			friendsArray.forEach((friend) => {
 				list.append(`<li>${friend.name} - ${friend.email}`);
 			});
 		}
