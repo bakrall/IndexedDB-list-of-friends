@@ -5,6 +5,7 @@
 
 	if ('indexedDB' in window) {
 		let db;
+		const submitButton = $('.submit');
 
 		//indexedDB.open returns a request for a database becasue IndexedDB is asynchronous
 		let openRequest = indexedDB.open('exerciseDB', 1);
@@ -20,20 +21,12 @@
 		openRequest.onsuccess = function(event) {
 			db = event.target.result;
 
-			let transaction = db.transaction(['friends'], 'readwrite');
-			let store = transaction.objectStore('friends');
-			let getData = store.getAll();
-
 			addFriend(db, 'Bob', 'bob@bob.com');
 			addFriend(db, 'Jack', 'jack@jack.com');
 			addFriend(db, 'Pete', 'pete@pete.com');
 
-			getData.onsuccess = function(event) {
-				let friendsArray = event.target.result;
-				let friendsList = $('.friends');
-
-				displayFriendsList(friendsArray, friendsList);
-			}
+			//once the database is ready display the friends we already have
+			getAndDisplayFriends(db);
 		}
 
 		openRequest.onerror = function(event) {
@@ -47,12 +40,64 @@
 			let store = transaction.objectStore('friends');
 			let friend = {name: name, email: email};
 			store.add(friend, name); //name is the key
+
+			transaction.oncomplete = function() { 
+				getAndDisplayFriends(db); 
+			}
+
+			transaction.onerror = function(event) {
+				console.log('error adding friend ' + event.target.errorCode);
+			}
 		}
 
-		function displayFriendsList(friendsArray = [], list) {
+		function getAndDisplayFriends(db) {
+			let transaction = db.transaction(['friends'], 'readonly');
+			let store = transaction.objectStore('friends');
+			let friendsList = $('.friends');
+
+			//create a cursor request to get all items in the store, which we collect in allFriends array
+			let req = store.openCursor();
+			let allFriends = [];
+
+			req.onsuccess = function(event) {
+				let cursor = event.target.result;
+
+				if (cursor != null) {
+					allFriends.push(cursor.value);
+					cursor.continue();
+				} else {
+					//if we have a null cursor, it means we've gotten all the items in the store
+					displayFriends(allFriends, friendsList);
+				}
+			}
+
+			req.onerror = function(event) {
+				alert('error in cursor request ' + event.target.errorCode);
+			}
+		}
+
+		function displayFriends(friendsArray = [], list) {
+			//empty the list before pulling friends from database - otherwise they will be displayed multiple times
+			list.empty();
 			friendsArray.forEach((friend) => {
 				list.append(`<li>${friend.name} - ${friend.email}`);
 			});
 		}
+
+		function getFriendData() {
+			const friendName = $('#friend-name').val(),
+				friendEmail = $('#friend-email').val();
+
+			addFriend(db, friendName, friendEmail);
+		}
+
+		function bindUiEvents() {
+			submitButton.on('click', (event) => {
+				event.preventDefault();
+				getFriendData();
+			});
+		}
+
+		bindUiEvents();
 	}
 }()); 

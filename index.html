@@ -6,10 +6,25 @@
         <title>Friends - IndexedDB</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="stylesheet" href="style.css">
     <body>
         <p>List of friends</p>
 
         <ul class="friends"></ul>
+
+        <form class="friends-form">
+            <fieldset>
+                <legend>Add a friend</legend>
+                <label for="friend-name">Name</label>
+                <input type="text" id="friend-name" name="friend_name">
+
+                <label for="friend-email">E-mail</label>
+                <input type="text" id="friend-email" name="friend_email">
+
+                <button class="submit">Add Friend</button>
+            </fieldset>
+        </form>
 
         <script
           src="https://code.jquery.com/jquery-3.4.1.min.js"
