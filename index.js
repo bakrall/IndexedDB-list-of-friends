@@ -24,9 +24,6 @@
 			addFriend(db, 'Bob', 'bob@bob.com');
 			addFriend(db, 'Jack', 'jack@jack.com');
 			addFriend(db, 'Pete', 'pete@pete.com');
-
-			//once the database is ready display the friends we already have
-			getAndDisplayFriends(db);
 		}
 
 		openRequest.onerror = function(event) {
