@@ -30,7 +30,7 @@
 		}
 
 		openRequest.onerror = function(event) {
-			console.log('error', event.target.errorCode);
+			console.log('error', event.target.error);
 		}
 
 		function addFriend(db, name, email) {
@@ -46,7 +46,7 @@
 			}
 
 			transaction.onerror = function(event) {
-				console.log('error adding friend ' + event.target.errorCode);
+				console.log('error adding friend ' + event.target.error);
 			}
 		}
 
@@ -72,7 +72,7 @@
 			}
 
 			req.onerror = function(event) {
-				alert('error in cursor request ' + event.target.errorCode);
+				alert('error in cursor request ' + event.target.error);
 			}
 		}
 
